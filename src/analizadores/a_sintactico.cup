@@ -1,0 +1,104 @@
+/*--------------------------AREA 1 - Codigo Usuario -------------------------------*/
+package analizadores;
+import java_cup.runtime.Symbol;
+import java.util.LinkedList;
+
+//codigo para el parser, variables, metodos
+parser code
+{:
+    
+    public String resultado = "";
+
+    public static LinkedList<TError> tablaErrorSys = new LinkedList<TError>();
+
+    //metodo al que se llama ante algun error sintactico
+    public void syntax_error(Symbol s){
+        String lexema = s.value.toString();
+        int fila = s.right;
+        int columna = s.left;
+
+        System.out.println("Error Sintactico Recuperado");
+
+        System.out.println("Lexema: "+lexema);
+        System.out.println("Linea: "+fila);
+        System.out.println("Columna: "+columna);
+
+        TError tError = new TError(lexema, "Error Sintactico", "Caracter No Esperado", fila, columna);
+        tablaErrorSys.add(tError);
+    }
+    
+    //metodo al que se llama ante algun error sintactico
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        String lexema = s.value.toString();
+        int fila = s.right;
+        int columna = s.left;
+
+        System.out.println("Error Sintactico Sin Recuperacion");
+
+        System.out.println("Lexema: "+lexema);
+        System.out.println("Linea: "+fila);
+        System.out.println("Columna: "+columna);
+
+        TError tError = new TError(lexema, "Error Sintactico", "Caracter No Esperado", fila, columna);
+        tablaErrorSys.add(tError);
+    }
+
+:}
+
+//Codigo para las acciones gramaticales
+action code{:
+
+:}
+
+/*--------------------------AREA 2 - Opciones y Declaraciones ---------------------*/
+
+terminal suma, menos, por, div, para, parc;
+terminal String num;
+
+non terminal String INICIO, E, F, G;
+
+start with INICIO;
+
+/*--------------------------AREA 3 - Reglas Semanticas ----------------------------*/
+
+INICIO ::= E:a {: parser.resultado = a; :};
+
+E ::= E:a suma F:b {:
+                    int val1 = Integer.parseInt(a);
+                    int val2 = Integer.parseInt(b);
+                    int r = val1 + val2;
+                    RESULT = String.valueOf(r);
+                    :}
+    |E:a menos F:b{:
+                    int val1 = Integer.parseInt(a);
+                    int val2 = Integer.parseInt(b);
+                    int r = val1 - val2;
+                    RESULT = String.valueOf(r);
+                    :}
+    |F:a{:
+                    RESULT = a;
+                    :};
+
+F ::= F:a por G:b{:
+                    int val1 = Integer.parseInt(a);
+                    int val2 = Integer.parseInt(b);
+                    int r = val1 * val2;
+                    RESULT = String.valueOf(r);
+                    :}
+    |F:a div G:b{:
+                    int val1 = Integer.parseInt(a);
+                    int val2 = Integer.parseInt(b);
+                    int r = val1 / val2;
+                    RESULT = String.valueOf(r);
+                    :}
+    |G:a{:
+                    RESULT = a;
+                    :};
+
+G ::= para E:a parc {:
+                    RESULT = a;
+                    :}
+    |num:a{:
+                    RESULT = a;
+                    :};
+
